@@ -7,7 +7,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     outputs: 
-      test_front_status: ${{ steps.test_front.outcome }}
+      test_front_status: ${{ job.status }}
     continue-on-error: true
     steps:
       - name: Checkout code
@@ -41,7 +41,7 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     outputs: 
-      build_front_status: ${{ steps.build_front.outcome }}
+      build_front_status: ${{ job.status }}
     continue-on-error: true
     steps: 
       - name: Checkout code
