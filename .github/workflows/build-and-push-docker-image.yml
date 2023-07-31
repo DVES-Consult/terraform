@@ -6,6 +6,8 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    outputs: 
+      test_front_status: ${{ steps.test_front.outcome }}
     continue-on-error: true
     steps:
       - name: Checkout code
@@ -30,6 +32,7 @@ jobs:
         working-directory: ./aws-rds/backend
       
       - name: Install dependencies and run test frontend
+        id: test_front
         if: steps.filter.outputs.frontend == 'true'
         run: npm ci && npm test
         working-directory: ./aws-rds/frontend/front
@@ -88,7 +91,26 @@ jobs:
         uses: slackapi/slack-github-action@v1.24.0
         with:
           channel-id: ${{ secrets.SLACK_PR_CHANNEL_ID }}
-          slack-message: "GitHub build result: ${{ needs.docker-build.outputs.build_front_status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}"
+          payload: |
+            {
+              "text": "GitHub Action build result: ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "GitHub Action build result: ${{ needs.docker-build.outputs.build_front_status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}"
+                  }
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "GitHub Action build result: ${{ needs.test.outputs.test_front_status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}"
+                  }
+                }
+              ]
+            }
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
 
