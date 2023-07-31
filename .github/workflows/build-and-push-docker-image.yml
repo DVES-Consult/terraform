@@ -74,7 +74,7 @@ jobs:
           docker tag meu-site-nginx:latest henriquelr/meu-site-nginx:${{ env.SHORT_SHA }}
   
   slack-message:
-    needs: [test, docker-build]
+    # needs: [test, docker-build]
     runs-on: ubuntu-latest
     steps: 
       - name: Post to a Slack channel
