@@ -1,11 +1,5 @@
 name: Build Docker Image
 
-# on: 
-#   pull_request:
-#     branches:
-#       - main
-#     paths:
-#       - 'aws-rds/backend/**'
 on:
   workflow_call:
 
@@ -19,9 +13,9 @@ jobs:
         id: filter
         with:
           filters: |
-            path1:  
+            backend:  
               - 'aws-rds/backend/**'
-            path2:
+            frontend:
               - 'aws-rds/frontend/**'
 
       - name: Use Node.js
@@ -29,17 +23,13 @@ jobs:
         with:
           node-version: '16.x'
 
-      # Check if backend directory was modified
-      - name: Install dependencies and run test
-        # if: ${{ contains(github.event.paths, 'aws-rds/backend') }}]
-        if: steps.filter.outputs.path1 == 'true'
+      - name: Install dependencies and run test backend
+        if: steps.filter.outputs.backend == 'true'
         run: npm ci && npm test
         working-directory: ./aws-rds/backend
       
-      # Check if frontend directory was modified
-      - name: Install dependencies and run test
-        # if: ${{ contains(github.event.paths, 'aws-rds/frontend') }}
-        if: steps.filter.outputs.path2 == 'true'
+      - name: Install dependencies and run test frontend
+        if: steps.filter.outputs.frontend == 'true'
         run: npm ci && npm test
         working-directory: ./aws-rds/frontend/front
 
@@ -54,9 +44,9 @@ jobs:
         id: filter
         with:
           filters: |
-            path1:  
+            backend:  
               - 'aws-rds/backend/**'
-            path2:
+            frontend:
               - 'aws-rds/frontend/**'
 
       - name: login docker
@@ -69,15 +59,15 @@ jobs:
         id: set_short_sha
         run: echo "SHORT_SHA=${GITHUB_SHA::7}" >> $GITHUB_ENV
 
-      - name: Build Docker image
-        if: steps.filter.outputs.path1 == 'true'
+      - name: Build Docker image backend
+        if: steps.filter.outputs.backend == 'true'
         run: |
           docker build --tag dves_api:latest aws-rds/backend/
           docker tag dves_api:latest henriquelr/dves_api:latest 
           docker tag dves_api:latest henriquelr/dves_api:${{ env.SHORT_SHA }} 
 
-      - name: Build Docker image
-        if: steps.filter.outputs.path2 == 'true'
+      - name: Build Docker image frontend
+        if: steps.filter.outputs.frontend == 'true'
         run: |
           docker build --tag meu-site-nginx:latest aws-rds/frontend/
           docker tag meu-site-nginx:latest henriquelr/meu-site-nginx:latest 
