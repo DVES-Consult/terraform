@@ -1,0 +1,25 @@
+name: Tests and build
+
+on: 
+  push:
+    branches:    
+      - main  
+    paths:
+      - 'aws-rds/backend/**'
+      - 'aws-rds/frontend/**'
+  pull_request:
+    paths:
+      - 'aws-rds/backend/**'
+      - 'aws-rds/frontend/**'
+
+jobs:
+  build:
+    if: github.event_name == 'pull_request'
+    uses: ./.github/workflows/build-and-push-docker-image.yml
+    secrets: inherit
+  
+  merge:
+    if: github.event_name == 'push'
+    uses: ./.github/workflows/merge-main.yml
+    secrets: inherit
+
