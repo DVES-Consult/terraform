@@ -72,17 +72,15 @@ jobs:
       - name: Build Docker image
         if: steps.filter.outputs.path1 == 'true'
         run: |
-          docker build --tag henriquelr/dves_api:latest aws-rds/backend/
-          docker build --tag henriquelr/dves_api:${{ env.SHORT_SHA }} aws-rds/backend/
+          docker build --tag dves_api:latest aws-rds/backend/
+          docker tag dves_api henriquelr/dves_api:latest aws-rds/backend/
+          docker tag dves_api henriquelr/dves_api:${{ env.SHORT_SHA }} aws-rds/backend/
 
       - name: Build Docker image
         if: steps.filter.outputs.path2 == 'true'
         run: |
-          docker build --tag henriquelr/meu-site-nginx:latest aws-rds/frontend/
-          docker build --tag henriquelr/meu-site-nginx:${{ env.SHORT_SHA }} aws-rds/frontend/
+          docker build --tag meu-site-nginx:latest aws-rds/frontend/
+          docker tag meu-site-nginx henriquelr/meu-site-nginx:latest aws-rds/frontend/
+          docker tag meu-site-nginx henriquelr/meu-site-nginx:${{ env.SHORT_SHA }} aws-rds/frontend/
 
-      # - name: Push Docker image
-      #   run: |
-      #     docker push henriquelr/dves_api:latest
-      #     docker push henriquelr/dves_api:${{ env.SHORT_SHA }}
 
