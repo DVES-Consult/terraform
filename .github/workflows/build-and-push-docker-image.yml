@@ -77,13 +77,13 @@ jobs:
     runs-on: ubuntu-latest
     steps: 
       - name: Post to a Slack channel
-      id: slack
-      uses: slackapi/slack-github-action@v1.24.0
-      with:
-        channel-id: ${{ secrets.SLACK_PR_CHANNEL_ID }}
-        # For posting a simple plain text message
-        slack-message: "GitHub build result: ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}"
-      env:
-        SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+        id: slack
+        uses: slackapi/slack-github-action@v1.24.0
+        with:
+          channel-id: ${{ secrets.SLACK_PR_CHANNEL_ID }}
+          # For posting a simple plain text message
+          slack-message: "GitHub build result: ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}"
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
 
 
