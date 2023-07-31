@@ -24,7 +24,7 @@ jobs:
           node-version: '16.x'
 
       - name: Install dependencies and run test backend
-        if: steps.filter. .backend == 'true'
+        if: steps.filter.outputs.backend == 'true'
         run: npm ci && npm test
         working-directory: ./aws-rds/backend
       
