@@ -38,6 +38,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs: 
       build_front_status: ${{ steps.build_front.outcome }}
+    continue-on-error: true
     steps: 
       - name: Checkout code
         uses: actions/checkout@v2
