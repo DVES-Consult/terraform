@@ -39,7 +39,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs: 
       build_front_status: ${{ steps.build_front.outcome }}
-    # continue-on-error: true
+    continue-on-error: true
     steps: 
       - name: Checkout code
         uses: actions/checkout@v2
@@ -76,7 +76,7 @@ jobs:
         if: steps.filter.outputs.frontend == 'true'
         run: |
           docker build --tag meu-site-nginx:latest aws-rds/frontend/
-          docker tag meu-site-nginx:latest henriquelr/meu-site-nginx:latest 
+          docker tag meu-site-ngin:latest henriquelr/meu-site-nginx:latest 
           docker tag meu-site-nginx:latest henriquelr/meu-site-nginx:${{ env.SHORT_SHA }}
   
   slack-message:
