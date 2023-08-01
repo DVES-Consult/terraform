@@ -116,7 +116,7 @@ jobs:
                       "value": "${{ needs.test.outputs.test_status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}"
                     },
                     {
-                      "title": "Test result",
+                      "title": "Build result",
                       "short": true,
                       "value": "${{ needs.docker-build.outputs.build_status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}"
                     }
