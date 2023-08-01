@@ -91,6 +91,12 @@ jobs:
           echo "JOBS_STATUS='failure'" >> $GITHUB_ENV
           echo "COLOR='FF0000'" >> $GITHUB_ENV
 
+      - name: Getting status jobs
+        if: ${{ needs.docker-build.outputs.build_status == 'success' && needs.test.outputs.test_status == 'success' }}
+        run: |
+          echo "JOBS_STATUS='success'" >> $GITHUB_ENV
+          echo "COLOR=28a745" >> $GITHUB_ENV
+
       - name: Post to a Slack channel
         id: slack
         uses: slackapi/slack-github-action@v1.24.0
