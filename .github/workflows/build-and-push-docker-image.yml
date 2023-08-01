@@ -7,7 +7,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     outputs: 
-      test_front_status: ${{ job.status }}
+      test_status: ${{ job.status }}
     continue-on-error: true
     steps:
       - name: Checkout code
@@ -32,7 +32,6 @@ jobs:
         working-directory: ./aws-rds/backend
       
       - name: Install dependencies and run test frontend
-        id: test_front
         if: steps.filter.outputs.frontend == 'true'
         run: npm ci && npm test
         working-directory: ./aws-rds/frontend/front
@@ -41,7 +40,7 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     outputs: 
-      build_front_status: ${{ job.status }}
+      build_status: ${{ job.status }}
     continue-on-error: true
     steps: 
       - name: Checkout code
@@ -99,14 +98,14 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "GitHub Action build result: ${{ needs.docker-build.outputs.build_front_status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}"
+                    "text": "GitHub Action build result: ${{ needs.docker-build.outputs.build_status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}"
                   }
                 },
                 {
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "GitHub Action build result: ${{ needs.test.outputs.test_front_status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}"
+                    "text": "GitHub Action build result: ${{ needs.test.outputs.test_status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}"
                   }
                 }
               ]
