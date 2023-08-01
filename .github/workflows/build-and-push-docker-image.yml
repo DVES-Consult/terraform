@@ -87,7 +87,9 @@ jobs:
     steps: 
       - name: Getting status jobs
         if: ${{ needs.docker-build.outputs.build_status == 'failure' || needs.test.outputs.test_status == 'failure' }}
-        run: echo "JOBS_STATUS=failure" >> $GITHUB_ENV
+        run: |
+          echo "JOBS_STATUS='failure'" >> $GITHUB_ENV
+          echo "COLOR='FF0000'" >> $GITHUB_ENV
 
       - name: Post to a Slack channel
         id: slack
@@ -96,21 +98,23 @@ jobs:
           channel-id: ${{ secrets.SLACK_PR_CHANNEL_ID }}
           payload: |
             {
-              "text": "GitHub Action result: ${{ env.SHORT_SHA }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}",
-              "blocks": [
+              "text": "GitHub Action result: ${{ env.JOBS_STATUS }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}",
+              "attachments": [
                 {
-                  "type": "section",
-                  "text": {
-                    "type": "mrkdwn",
-                    "text": "GitHub Action test result: ${{ needs.test.outputs.test_status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}"
-                  }
-                },
-                {
-                  "type": "section",
-                  "text": {
-                    "type": "mrkdwn",
-                    "text": "GitHub Action build result: ${{ needs.docker-build.outputs.build_status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}"
-                  }
+                  "pretext": "GitHub Action result: ${{ env.JOBS_STATUS }}",
+                  "color": "${{ env.COLOR }}",
+                  "fields": [
+                    {
+                      "title": "Test result",
+                      "short": true,
+                      "value": "${{ needs.test.outputs.test_status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}"
+                    },
+                    {
+                      "title": "Test result",
+                      "short": true,
+                      "value": "${{ needs.docker-build.outputs.build_status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}"
+                    }
+                  ]
                 }
               ]
             }
