@@ -9,6 +9,6 @@ describe('Teste de soma', () => {
     })
 
   test('também deve ser igual a 4', () => {
-      expect(sum(2,2)).toBe(5);
+      expect(sum(2,2)).toBe(4);
     }) 
 });
