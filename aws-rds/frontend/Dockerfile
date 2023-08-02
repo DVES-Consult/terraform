@@ -14,6 +14,6 @@ RUN npm run build
 # RUN rm -rf node_modules
 
 # Run build 
-FROM nginxgggl
+FROM nginx
 
 COPY --from=buildStage /app/dist /usr/share/nginx/html/
