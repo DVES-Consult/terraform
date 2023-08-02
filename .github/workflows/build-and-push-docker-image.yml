@@ -6,6 +6,9 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    outputs: 
+      test_status: ${{ job.status }}
+    continue-on-error: true
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -36,6 +39,9 @@ jobs:
   docker-build:
     needs: test
     runs-on: ubuntu-latest
+    outputs: 
+      build_status: ${{ job.status }}
+    continue-on-error: true
     steps: 
       - name: Checkout code
         uses: actions/checkout@v2
@@ -60,6 +66,7 @@ jobs:
         run: echo "SHORT_SHA=${GITHUB_SHA::7}" >> $GITHUB_ENV
 
       - name: Build Docker image backend
+        id: build_back
         if: steps.filter.outputs.backend == 'true'
         run: |
           docker build --tag dves_api:latest aws-rds/backend/
@@ -67,10 +74,57 @@ jobs:
           docker tag dves_api:latest henriquelr/dves_api:${{ env.SHORT_SHA }} 
 
       - name: Build Docker image frontend
+        id: build_front
         if: steps.filter.outputs.frontend == 'true'
         run: |
           docker build --tag meu-site-nginx:latest aws-rds/frontend/
           docker tag meu-site-nginx:latest henriquelr/meu-site-nginx:latest 
-          docker tag meu-site-nginx:latest henriquelr/meu-site-nginx:${{ env.SHORT_SHA }} 
+          docker tag meu-site-nginx:latest henriquelr/meu-site-nginx:${{ env.SHORT_SHA }}
+  
+  slack-message:
+    needs: [test, docker-build] 
+    runs-on: ubuntu-latest
+    steps: 
+      - name: Getting status jobs
+        if: ${{ needs.docker-build.outputs.build_status == 'failure' || needs.test.outputs.test_status == 'failure' }}
+        run: |
+          echo "JOBS_STATUS='failure'" >> $GITHUB_ENV
+          echo "COLOR='FF0000'" >> $GITHUB_ENV
+
+      - name: Getting status jobs
+        if: ${{ needs.docker-build.outputs.build_status == 'success' && needs.test.outputs.test_status == 'success' }}
+        run: |
+          echo "JOBS_STATUS='success'" >> $GITHUB_ENV
+          echo "COLOR=28a745" >> $GITHUB_ENV
+
+      - name: Post to a Slack channel
+        id: slack
+        uses: slackapi/slack-github-action@v1.24.0
+        with:
+          channel-id: ${{ secrets.SLACK_PR_CHANNEL_ID }}
+          payload: |
+            {
+              "text": "GitHub Action result: ${{ env.JOBS_STATUS }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}",
+              "attachments": [
+                {
+                  "pretext": "GitHub Action result: ${{ env.JOBS_STATUS }}",
+                  "color": "${{ env.COLOR }}",
+                  "fields": [
+                    {
+                      "title": "Test result",
+                      "short": true,
+                      "value": "${{ needs.test.outputs.test_status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}"
+                    },
+                    {
+                      "title": "Build result",
+                      "short": true,
+                      "value": "${{ needs.docker-build.outputs.build_status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}"
+                    }
+                  ]
+                }
+              ]
+            }
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
 
 

@@ -7,7 +7,7 @@ function App() {
   const handleSubmit = (e) => {
     e.preventDefault();
     // Enviar os dados para a rota /enviar-email da API
-    fetch("http://api.dves.cloud/enviar-email", {
+    fetch("https://api.dves.cloud/enviar-email", {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

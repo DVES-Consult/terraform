@@ -15,11 +15,11 @@ on:
 jobs:
   build:
     if: github.event_name == 'pull_request'
-    uses: ./.github/workflows/build-and-push-docker-image.yml
+    uses: DVES-Consult/github-reusable/.github/workflows/build-and-push-docker-image.yml@main
     secrets: inherit
   
   merge:
     if: github.event_name == 'push'
-    uses: ./.github/workflows/merge-main.yml
+    uses: DVES-Consult/github-reusable/.github/workflows/merge-main.yml@main
     secrets: inherit
 
