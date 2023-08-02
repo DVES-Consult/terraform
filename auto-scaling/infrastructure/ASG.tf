@@ -31,6 +31,7 @@ resource "aws_launch_template" "api_node" {
 }
 
 resource "aws_autoscaling_group" "site_web1" {
+  name               = "site-web1"
   availability_zones = ["us-east-1a", "us-east-1b", "us-east-1c"]
   desired_capacity   = 2
   max_size           = 3
@@ -38,11 +39,12 @@ resource "aws_autoscaling_group" "site_web1" {
 
   launch_template {
     id      = aws_launch_template.site_web.id
-    version = "$Default"
+    version = "$Latest"
   }
 }
 
 resource "aws_autoscaling_group" "api_enviar_email" {
+  name               = "api-enviar-email"
   availability_zones = ["us-east-1a", "us-east-1b", "us-east-1c"]
   desired_capacity   = 3
   max_size           = 5
@@ -50,6 +52,11 @@ resource "aws_autoscaling_group" "api_enviar_email" {
 
   launch_template {
     id      = aws_launch_template.api_node.id
-    version = "$Default"
+    version = "$Latest"
   }
 }
+
+# resource "aws_autoscaling_attachment" "site_web1" {
+#   autoscaling_group_name = aws_autoscaling_group.site_web1.id
+#   lb_target_group_arn    = aws_lb_target_group.site_web_1.arn
+# }

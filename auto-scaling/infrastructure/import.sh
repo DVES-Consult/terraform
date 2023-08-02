@@ -10,3 +10,8 @@ terraform import aws_lb_listener.site_web_1 arn:aws:elasticloadbalancing:us-east
 terraform import aws_route53_record.dves_cloud Z03778861RLKAHMOIT56K_dves.cloud_A
 terraform import aws_route53_record.api_dves_cloud Z03778861RLKAHMOIT56K_api_A
 
+terraform import aws_launch_template.site_web lt-0f0c77a0c31aacc20
+terraform import aws_launch_template.api_node lt-0bb3ab653fff7ab73
+
+terraform import aws_autoscaling_group.site_web1 site-web1
+terraform import aws_autoscaling_group.api_enviar_email api-enviar-email
