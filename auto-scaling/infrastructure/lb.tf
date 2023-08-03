@@ -36,11 +36,11 @@ resource "aws_lb_target_group" "api_enviar_email_1" {
   vpc_id   = data.aws_vpc.default.id
 }
 
-# resource "aws_lb_target_group_attachment" "api_enviar_email_1" {
-#   target_group_arn = aws_lb_target_group.api_enviar_email_1.arn
-#   target_id        = aws_instance.api.id
-#   port             = 3000
-# }
+resource "aws_lb_target_group_attachment" "api_enviar_email_1" {
+  target_group_arn = aws_lb_target_group.api_enviar_email_1.arn
+  target_id        = aws_instance.api.id
+  port             = 3000
+}
 
 
 resource "aws_lb" "site_web_1" {
@@ -80,8 +80,8 @@ resource "aws_lb_target_group" "site_web_1" {
   }
 }
 
-# resource "aws_lb_target_group_attachment" "site_web_1" {
-#   target_group_arn = aws_lb_target_group.site_web_1.arn
-#   target_id        = aws_instance.web.id
-#   port             = 80
-# }
+resource "aws_lb_target_group_attachment" "site_web_1" {
+  target_group_arn = aws_lb_target_group.site_web_1.arn
+  target_id        = aws_instance.web.id
+  port             = 80
+}
