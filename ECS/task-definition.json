@@ -1,0 +1,86 @@
+{
+  "taskDefinitionArn": "arn:aws:ecs:us-east-1:285552379206:task-definition/api-email:3",
+  "containerDefinitions": [
+      {
+          "name": "api-email",
+          "image": "docker.io/henriquelr/dves_api:latest",
+          "repositoryCredentials": {
+              "credentialsParameter": "arn:aws:secretsmanager:us-east-1:285552379206:secret:development/TestSecret-UXLqtE"
+          },
+          "cpu": 0,
+          "portMappings": [
+              {
+                  "name": "api-email-3000-tcp",
+                  "containerPort": 3000,
+                  "hostPort": 3000,
+                  "protocol": "tcp",
+                  "appProtocol": "http"
+              }
+          ],
+          "essential": true,
+          "environment": [
+              {
+                  "name": "SMTP_USER",
+                  "value": "hrikelr@hotmail.com"
+              },
+              {
+                  "name": "SMTP_PASSWORD",
+                  "value": "henrikeda1234"
+              },
+              {
+                  "name": "EMAIL_DESTINATION",
+                  "value": "[\"hrikelr@hotmail.com\", \"delsantos.miranda@gmail.com\"]"
+              },
+              {
+                  "name": "SMTP_PORT",
+                  "value": "587"
+              },
+              {
+                  "name": "SMTP_HOST",
+                  "value": "smtp.office365.com"
+              }
+          ],
+          "environmentFiles": [],
+          "mountPoints": [],
+          "volumesFrom": [],
+          "ulimits": []
+      }
+  ],
+  "family": "api-email",
+  "taskRoleArn": "arn:aws:iam::285552379206:role/ecsTaskSecrets",
+  "executionRoleArn": "arn:aws:iam::285552379206:role/ecsTaskSecrets",
+  "networkMode": "awsvpc",
+  "revision": 3,
+  "volumes": [],
+  "status": "ACTIVE",
+  "requiresAttributes": [
+      {
+          "name": "ecs.capability.private-registry-authentication.secretsmanager"
+      },
+      {
+          "name": "com.amazonaws.ecs.capability.task-iam-role"
+      },
+      {
+          "name": "com.amazonaws.ecs.capability.docker-remote-api.1.18"
+      },
+      {
+          "name": "ecs.capability.task-eni"
+      }
+  ],
+  "placementConstraints": [],
+  "compatibilities": [
+      "EC2"
+  ],
+  "requiresCompatibilities": [
+      "EC2"
+  ],
+  "cpu": "1024",
+  "memory": "1024",
+  "runtimePlatform": {
+      "cpuArchitecture": "X86_64",
+      "operatingSystemFamily": "LINUX"
+  },
+  "registeredAt": "2023-08-07T16:53:18.546Z",
+  "registeredBy": "arn:aws:iam::285552379206:root",
+  "tags": []
+}
