@@ -1,0 +1,9 @@
+schemaVersion: "2.2"
+description: create file test1.txt.
+parameters: {}
+mainSteps:
+  - action: "aws:runShellScript"
+    name: "example"
+    inputs:
+      runCommand:
+      - touch "$(date +%s).txt"
