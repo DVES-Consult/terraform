@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: basic-ingress
+spec:
+  defaultBackend:
+    service:
+      name: mysite
+      port:
+        number: 80
+
+#   annotations:
+#     networking.gke.io/managed-certificates: "dves-coul"
+# spec:
+#   rules:
+#   - host: dves.cloud
+#     http:
+#       paths:
+#       - pathType: ImplementationSpecific
+#         backend:
+#           service:
+#             name: mysite
+#             port:
+#               number: 80

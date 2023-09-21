@@ -17,3 +17,6 @@ RUN npm run build
 FROM nginx
 
 COPY --from=buildStage /app/dist /usr/share/nginx/html/
+
+
+

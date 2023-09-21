@@ -45,18 +45,26 @@ resource "aws_autoscaling_group" "site_web1" {
 
 resource "aws_autoscaling_group" "api_enviar_email" {
   name               = "api-enviar-email"
-  availability_zones = ["us-east-1a", "us-east-1b", "us-east-1c"]
-  desired_capacity   = 3
-  max_size           = 5
-  min_size           = 2
+  availability_zones = ["us-east-1c"]
+  # health_check_grace_period = 30
+  desired_capacity   = 1
+  max_size           = 1
+  min_size           = 1
 
   launch_template {
     id      = aws_launch_template.api_node.id
-    version = "$Latest"
+    version = "13"
+  }
+
+  instance_refresh {
+    strategy = "Rolling"
+    preferences {
+      min_healthy_percentage = 0
+    }
   }
 }
 
-# resource "aws_autoscaling_attachment" "site_web1" {
-#   autoscaling_group_name = aws_autoscaling_group.site_web1.id
-#   lb_target_group_arn    = aws_lb_target_group.site_web_1.arn
-# }
+resource "aws_autoscaling_attachment" "api_enviar_email" {
+  autoscaling_group_name = aws_autoscaling_group.api_enviar_email.id
+  lb_target_group_arn    = aws_lb_target_group.api_enviar_email_1.arn
+}
