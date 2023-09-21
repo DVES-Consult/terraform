@@ -7,7 +7,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     outputs: 
-      build_status: ${{ job.status }}
+      test_status: ${{ job.status }}
     continue-on-error: true
     steps:
       - name: Checkout code
@@ -90,21 +90,71 @@ jobs:
         run: |
           docker push henriquelr/meu-site-nginx:latest
           docker push henriquelr/meu-site-nginx:${{ env.SHORT_SHA }}
+  
+  deploy-aws:
+    needs: [test, docker-build]
+    outputs: 
+      deploy_status: ${{ job.status }}
+    continue-on-error: true
+    if: ${{ needs.docker-build.outputs.build_status == 'success' && needs.test.outputs.test_status == 'success' }}
+    runs-on: ubuntu-latest
+    steps: 
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          filters: |
+            backend:  
+              - 'aws-rds/backend/**'
+            frontend:
+              - 'aws-rds/frontend/**'
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+      
+      - name: Create launch template version and start instance refresh frontend
+        if: steps.filter.outputs.frontend == 'true'
+        run: |
+          echo "Getting user data"
+          user_data=$(cat aws-rds/infrastructure/scripts-front.sh | base64 -w 0)
+          echo "Creating launch template version"
+          aws ec2 create-launch-template-version --launch-template-id lt-025e6a5928fe67c29 \
+            --source-version 1 --launch-template-data "UserData=${user_data}"  &> /dev/null 
+          echo "Starting instance update"
+          aws autoscaling start-instance-refresh \
+            --auto-scaling-group-name site-web1
+
+      - name: Create launch template version and start instance refresh backend
+        if: steps.filter.outputs.backend == 'true'
+        run: |
+          echo "Getting user data"
+          user_data=$(cat aws-rds/infrastructure/scripts-back.sh | base64 -w 0)
+          echo "Creating launch template version"
+          aws ec2 create-launch-template-version --launch-template-id lt-0b3cbaaa5a6fe3ba1 \
+            --source-version 1 --launch-template-data "UserData=${user_data}"  &> /dev/null 
+          echo "Starting instance update"
+          aws autoscaling start-instance-refresh \
+            --auto-scaling-group-name api-enviar-email
 
   slack-message:
-    needs: [test, docker-build] 
+    needs: [test, docker-build, deploy-aws] 
     runs-on: ubuntu-latest
     steps: 
       - name: Getting status jobs
-        if: ${{ needs.docker-build.outputs.build_status == 'failure' || needs.test.outputs.test_status == 'failure' }}
+        if: ${{ needs.docker-build.outputs.build_status == 'failure' || needs.test.outputs.test_status == 'failure' || needs.deploy-aws.outputs.deploy_status == 'failure' }} 
         run: |
-          echo "JOBS_STATUS='failure'" >> $GITHUB_ENV
+          echo "JOBS_STATUS=failure" >> $GITHUB_ENV
           echo "COLOR=FF0000" >> $GITHUB_ENV
       
       - name: Getting status jobs
-        if: ${{ needs.docker-build.outputs.build_status == 'success' && needs.test.outputs.test_status == 'success' }}
+        if: ${{ needs.docker-build.outputs.build_status == 'success' && needs.test.outputs.test_status == 'success' && needs.deploy-aws.outputs.deploy_status == 'success' }}
         run: |
-          echo "JOBS_STATUS='success'" >> $GITHUB_ENV
+          echo "JOBS_STATUS=success" >> $GITHUB_ENV
           echo "COLOR=28a745" >> $GITHUB_ENV
 
       - name: Post to a Slack channel
@@ -122,12 +172,17 @@ jobs:
                     {
                       "title": "Test result",
                       "short": true,
-                      "value": "${{ needs.test.outputs.test_status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}"
+                      "value": "${{ needs.test.outputs.test_status }}"
                     },
                     {
                       "title": "Build and Push result",
                       "short": true,
-                      "value": "${{ needs.docker-build.outputs.build_status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}"
+                      "value": "${{ needs.docker-build.outputs.build_status }}"
+                    },
+                    {
+                      "title": "deploy result",
+                      "short": true,
+                      "value": "${{ needs.deploy-aws.outputs.deploy_status }}"
                     }
                   ]
                 }

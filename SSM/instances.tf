@@ -1,6 +1,7 @@
 resource "aws_instance" "teste_ssm" {
   ami           = "ami-0f34c5ae932e6f0e4"
   instance_type = "t2.micro"
+  associate_public_ip_address = false
   tags                                 = {
     "Name" = "teste-ssm"
     "Environment" = "Development"

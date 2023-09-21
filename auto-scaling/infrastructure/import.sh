@@ -15,3 +15,7 @@ terraform import aws_launch_template.api_node lt-0bb3ab653fff7ab73
 
 terraform import aws_autoscaling_group.site_web1 site-web1
 terraform import aws_autoscaling_group.api_enviar_email api-enviar-email
+
+
+terraform state rm aws_lb_target_group.api_enviar_email_1 
+terraform state rm aws_lb_target_group.site_web_1 
